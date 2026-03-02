@@ -108,7 +108,7 @@ We use the **Kaggle Cats and Dogs** dataset (hosted by Microsoft).
 | Environment | Train Images | Val Images | Total |
 |-------------|-------------|-----------|-------|
 | **Local (CPU)** | 2,000 | 1,000 | 3,000 |
-| **Colab (GPU)** | ~20,000 | ~5,000 | ~25,000 |
+| **Colab (GPU)** | 20,000 | 5,000 | 25,000 |
 
 - Images resized to **150x150** pixels
 - Normalised to [-1, 1] range
@@ -248,50 +248,136 @@ python main.py --epochs 5
 
 ## Colab Results (GPU)
 
-> **Pending:** Run the Colab notebook and paste results here.
+**Environment:** L4 GPU (CUDA) | **Dataset:** 25,000 images | **Epochs:** 15
 
-<!-- COLAB_RESULTS_PLACEHOLDER -->
+### Results Summary
+
+| Rank | Model | Accuracy | Parameters | Training Time | Epochs |
+|------|-------|----------|-----------|---------------|--------|
+| 1 | BatchNorm CNN | **96.4%** | 3.45M | 11m 42s | 15/15 |
+| 2 | Transfer ResNet18 | 96.1% | 11.3M (130K trainable) | 11m 36s | 15/15 |
+| 3 | Small FC CNN | 95.0% | 4.83M | 11m 50s | 15/15 |
+| 4 | Wide CNN | 93.7% | 38.25M | 11m 48s | 15/15 |
+| 5 | Baseline CNN | 92.4% | 3.45M | 11m 49s | 15/15 |
+| 6 | Dropout CNN | 89.4% | 3.45M | 11m 48s | 15/15 |
+| 7 | LeNet-Style CNN | 88.0% | 2.23M | 11m 37s | 15/15 |
+| 8 | Shallow CNN | 87.3% | 11.23M | 11m 49s | 15/15 |
+| 9 | Lightweight CNN | 77.2% | 23.9K | 11m 36s | 15/15 |
+| 10 | Deep CNN | 50.0% | 30.62M | 5m 37s | 7/15 |
+
+### Detailed Per-Class Metrics
+
+| Model | Precision (Cat) | Recall (Cat) | F1 (Cat) | Precision (Dog) | Recall (Dog) | F1 (Dog) |
+|-------|----------------|-------------|---------|----------------|-------------|---------|
+| BatchNorm CNN | 0.974 | 0.954 | 0.964 | 0.955 | 0.975 | 0.965 |
+| Transfer ResNet18 | 0.962 | 0.959 | 0.961 | 0.959 | 0.962 | 0.961 |
+| Small FC CNN | 0.953 | 0.946 | 0.949 | 0.946 | 0.954 | 0.950 |
+| Wide CNN | 0.920 | 0.957 | 0.938 | 0.955 | 0.917 | 0.936 |
+| Baseline CNN | 0.939 | 0.906 | 0.922 | 0.909 | 0.942 | 0.925 |
+| Dropout CNN | 0.893 | 0.896 | 0.894 | 0.895 | 0.893 | 0.894 |
+| LeNet-Style CNN | 0.907 | 0.846 | 0.875 | 0.855 | 0.914 | 0.884 |
+| Shallow CNN | 0.912 | 0.824 | 0.866 | 0.840 | 0.921 | 0.878 |
+| Lightweight CNN | 0.708 | 0.923 | 0.802 | 0.890 | 0.620 | 0.731 |
+| Deep CNN | 0.000 | 0.000 | 0.000 | 0.500 | 1.000 | 0.667 |
+
+### Group Analysis
+
+| Group | Description | Avg Accuracy | Models |
+|-------|-------------|-------------|--------|
+| B | Regularisation | **92.9%** | Dropout CNN, BatchNorm CNN |
+| C | Architecture Variants | 91.5% | Small FC CNN, LeNet-Style CNN |
+| D | Advanced | 86.6% | Transfer ResNet18, Lightweight CNN |
+| A | Depth Study | 80.8% | Baseline, Shallow, Deep, Wide |
 
 ---
 
 ## Local vs Colab Comparison
 
-> **Pending:** Will be completed after Colab notebook run.
+### Side-by-Side Results
 
-<!-- LOCAL_VS_COLAB_PLACEHOLDER -->
+| Model | Local (CPU) | Colab (GPU) | Change | Rank Change |
+|-------|------------|------------|--------|-------------|
+| BatchNorm CNN | 75.2% | **96.4%** | +21.2% | #4 → **#1** |
+| Transfer ResNet18 | **94.6%** | 96.1% | +1.5% | #1 → #2 |
+| Small FC CNN | 79.4% | 95.0% | +15.6% | #3 → #3 |
+| Wide CNN | 50.0% | 93.7% | **+43.7%** | #10 → #4 |
+| Baseline CNN | 69.2% | 92.4% | +23.2% | #8 → #5 |
+| Dropout CNN | 75.0% | 89.4% | +14.4% | #5 → #6 |
+| LeNet-Style CNN | 81.0% | 88.0% | +7.0% | #2 → #7 |
+| Shallow CNN | 74.9% | 87.3% | +12.4% | #6 → #8 |
+| Lightweight CNN | 70.6% | 77.2% | +6.6% | #7 → #9 |
+| Deep CNN | 68.0% | 50.0% | **-18.0%** | #9 → #10 |
+
+### Environment Comparison
+
+| Factor | Local | Colab |
+|--------|-------|-------|
+| **Device** | CPU | L4 GPU (CUDA) |
+| **Training images** | 2,000 | 20,000 (10x more) |
+| **Validation images** | 1,000 | 5,000 (5x more) |
+| **Epochs** | 10 | 15 |
+| **Total training time** | ~110 minutes | ~108 minutes |
+| **Average accuracy** | 73.7% | 86.9% |
+| **Best model** | Transfer ResNet18 (94.6%) | BatchNorm CNN (96.4%) |
+| **Worst model** | Wide CNN (50.0%) | Deep CNN (50.0%) |
+
+### What Changed and Why
+
+**Biggest winners with more data:**
+
+1. **Wide CNN (+43.7%)** — The most dramatic turnaround. With only 3,000 images locally, its 38.3M parameters had nothing to learn from — pure overfitting leading to random guessing. With 20,000 training images, those same parameters finally had enough data to learn meaningful features, jumping to 93.7%.
+
+2. **Baseline CNN (+23.2%)** — Went from a mediocre 69.2% to a strong 92.4%. The basic 4-layer architecture was actually a solid design all along — it just needed more data to show it.
+
+3. **BatchNorm CNN (+21.2%)** — Rose from mid-pack (#4) to **first place**. BatchNorm's ability to stabilise training and allow higher effective learning rates shines when there is enough data to train on. With 20,000 images, it outperformed even Transfer Learning.
+
+**Models that barely changed:**
+
+4. **Transfer ResNet18 (+1.5%)** — Was already at 94.6% with just 3,000 images and only improved to 96.1%. This makes sense: the pretrained backbone already knows how to "see" from ImageNet training. More cat/dog images add little new knowledge.
+
+5. **Lightweight CNN (+6.6%)** — With only 24K parameters, there is a hard ceiling on what this model can learn. More data helps, but the model simply does not have enough capacity to capture complex patterns.
+
+**The one model that got worse:**
+
+6. **Deep CNN (-18.0%)** — Dropped from 68.0% to 50.0% (random guessing) and triggered early stopping at epoch 7. With 6 convolutional layers and 30.6M parameters, this model suffers from the **vanishing gradient problem** — gradients become too small to update earlier layers. More data made this worse because the model had more opportunities to get stuck. This architecture needs skip connections (like ResNet) to train successfully at this depth.
 
 ---
 
 ## Key Findings
 
-### 1. Transfer Learning Dominates
-The Transfer ResNet18 model achieved **94.6%** accuracy — far ahead of all other models. Using a pretrained backbone (trained on millions of ImageNet images) gives a massive head start, even when we freeze all the backbone layers and only train a tiny classifier head (~130K parameters).
+### 1. Data Quantity is the Great Equaliser
+The average accuracy jumped from **73.7% to 86.9%** when going from 3,000 to 25,000 images. Models that appeared broken locally (Wide CNN at 50.0%) became competitive (93.7%) with enough data. This is the single most important takeaway: **before blaming the architecture, check if you have enough data**.
 
-### 2. Bigger is NOT Always Better
-The Wide CNN (38.3M parameters) scored only **50.0%** — essentially random guessing. Meanwhile, the LeNet-Style CNN (2.2M parameters) scored **81.0%**. More parameters can actually hurt when the model is too complex for the dataset size.
+### 2. BatchNorm is the Overall Champion
+BatchNorm CNN achieved the highest accuracy on GPU (**96.4%**) — beating even Transfer Learning. With only 3.45M parameters, it proves that normalising layer outputs is one of the most effective techniques in deep learning. It stabilises training, allows faster convergence, and acts as a mild regulariser.
 
-### 3. Classic Designs Still Work
-The LeNet-Style CNN, inspired by a 1998 architecture, was the **second-best** custom model at 81.0%. Its 5x5 kernels and average pooling provide good feature extraction even by modern standards.
+### 3. Transfer Learning is the Safe Bet
+Transfer ResNet18 was the **most consistent** model across both environments: 94.6% locally, 96.1% on Colab. When you have limited data, transfer learning gives the best results. When you have plenty of data, it is still near the top. It is the safest choice for any real-world project.
 
-### 4. Regularisation Helps (Slightly)
-Both Dropout (75.0%) and BatchNorm (75.2%) outperformed the vanilla Baseline (69.2%). BatchNorm had a slight edge, likely due to training stability benefits.
+### 4. Bigger is NOT Always Better
+The Deep CNN (30.6M parameters) scored **50.0%** on both local and Colab — the only model to fail completely in both environments. Meanwhile, the Baseline CNN (3.45M parameters) reached 92.4% on Colab. More depth without proper architecture design (e.g., skip connections) leads to untrainable models.
 
-### 5. Small Models Can Compete
-The Lightweight CNN with only **24K parameters** (100x fewer than baseline) still achieved 70.6% — surprisingly close to models with millions more parameters. Global Average Pooling is a powerful technique.
+### 5. Regularisation Scales with Data
+Both Dropout and BatchNorm improved significantly with more data (Dropout: +14.4%, BatchNorm: +21.2%). Regularisation does not just prevent overfitting — it helps the model **generalise better** when given enough training examples to learn from.
 
-### 6. Depth vs Width Tradeoff
-Deep (68.0%) and Wide (50.0%) both underperformed the Baseline (69.2%). On a small dataset, adding more layers or filters leads to overfitting. The sweet spot is moderate complexity.
+### 6. Small Models Have a Ceiling
+The Lightweight CNN (24K parameters) improved only modestly (+6.6%) despite having 10x more data. With such limited capacity, there is a hard limit on what the model can represent. Global Average Pooling is powerful for reducing parameters, but you still need enough filters to capture the relevant features.
+
+### 7. GPU Makes Training Practical
+Local CPU training took ~110 minutes total for 10 models across 10 epochs. Colab GPU training took ~108 minutes for 10 models across 15 epochs with 10x more data. The GPU processed roughly **15x more work** in the same wall-clock time, making larger experiments feasible.
 
 ---
 
 ## What I Learned
 
-1. **Architecture matters more than size** — A well-designed small model beats a poorly designed big one
-2. **Transfer learning is incredibly powerful** — Even a frozen backbone gives near-perfect results
-3. **More data would help all models** — With only 3,000 images locally, many models overfit quickly
-4. **Regularisation is essential** — Dropout and BatchNorm both help prevent overfitting
-5. **PyTorch is flexible** — Building custom architectures is straightforward with `nn.Module`
-6. **GPU vs CPU makes a huge difference** — Training that takes hours on CPU takes minutes on GPU
+1. **Data matters more than architecture** — Most "bad" models locally became good with 10x more data. The Wide CNN went from 50% to 94%.
+2. **BatchNorm is underrated** — It beat transfer learning on GPU, proving that simple techniques applied correctly can rival complex ones.
+3. **Transfer learning is the safest starting point** — Consistent top-2 results in both environments, even with a frozen backbone.
+4. **Depth without skip connections is dangerous** — The Deep CNN failed in both environments. Modern deep networks (ResNet, etc.) solved this with residual connections.
+5. **Regularisation and data are partners** — Dropout and BatchNorm showed their full potential only when given enough data.
+6. **GPU vs CPU is not just about speed** — GPU lets you train with more data and more epochs, which fundamentally changes which architectures succeed.
+7. **PyTorch is flexible** — Building 10 custom architectures and a full training pipeline was straightforward with `nn.Module`.
+8. **Always test on multiple scales** — Running locally (small data) and on Colab (large data) revealed completely different rankings, giving much deeper insight.
 
 ---
 
@@ -307,6 +393,7 @@ L39/
 │   └── settings.yaml                # Configuration settings
 ├── docs/
 │   ├── PRD.md                       # Product Requirements Document
+│   ├── PROJECT_GUIDELINES.md        # Coding standards & conventions
 │   └── tasks.json                   # Task breakdown
 ├── logs/
 │   └── config/log_config.json       # Logging configuration
@@ -338,7 +425,8 @@ L39/
 │   │   └── model_10_lightweight.py  # Lightweight CNN
 │   ├── training/
 │   │   ├── trainer.py               # Training loop
-│   │   └── evaluator.py             # Evaluation & metrics
+│   │   ├── evaluator.py             # Evaluation & metrics
+│   │   └── results.py               # Results saving & summary
 │   ├── visualization/
 │   │   ├── sample_plots.py          # Sample image plots
 │   │   ├── training_plots.py        # Training curves
@@ -378,6 +466,7 @@ L39/
 | Download fails (403 error) | The dataset URL may have changed. Check `src/data/dataset.py` |
 | Training is very slow | Expected on CPU. Use Colab with GPU for faster training |
 | Images look wrong | Check that transforms are applied correctly (RGB vs Grayscale) |
+| `AttributeError: total_mem` on Colab | PyTorch renamed this attribute. Change `total_mem` to `total_memory` |
 
 ---
 
