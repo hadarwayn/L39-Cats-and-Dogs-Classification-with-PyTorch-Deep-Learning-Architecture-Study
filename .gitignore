@@ -1,0 +1,47 @@
+# Virtual environment
+venv/
+.venv/
+*.egg-info/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+*.secret
+credentials.json
+
+# Trained models (large files)
+*.pth
+*.pt
+results/models/*.pth
+
+# Dataset cache
+data/
+datasets/
+*.zip
+*.tar.gz
+
+# Logs (keep config, ignore runtime logs)
+logs/*.log
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Large files
+*.h5
+*.hdf5
+*.onnx

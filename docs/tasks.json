@@ -1,0 +1,1327 @@
+{
+  "project_name": "L39 — Cats vs Dogs Classification using PyTorch",
+  "repository": "https://github.com/hadarwayn/L39-Cats-and-Dogs-Classification-with-PyTorch-Deep-Learning-Architecture-Study.git",
+  "total_estimated_hours": 48,
+  "created": "2026-03-02",
+  "version": "1.0",
+  "notes": [
+    "All code files MUST be under 150 lines — split if exceeded",
+    "Every function needs type hints and docstrings",
+    "Comments must be understandable by a 12-year-old",
+    "NumPy vectorization — NO basic Python loops for array operations",
+    "Local training: 2-hour HARD LIMIT per model",
+    "Local (CPU): ~3,000 images, 10 epochs default. Colab (GPU): ~25,000 images, 15 epochs default",
+    "Before push: multi-agent QA on Colab Notebook AND README",
+    "README must include Local vs Colab comparison for all 10 models"
+  ],
+  "phases": [
+    {
+      "phase": "1_planning",
+      "phase_name": "Planning & Approval",
+      "estimated_hours": 3,
+      "status": "done",
+      "tasks": [
+        {
+          "id": "1.1",
+          "name": "Create enhanced PRD.md",
+          "priority": "critical",
+          "estimated_hours": 2,
+          "status": "done",
+          "dependencies": [],
+          "files_to_create": ["docs/PRD.md"],
+          "acceptance_criteria": [
+            "All 19 sections complete",
+            "10 architectures fully specified with layer tables",
+            "4 research groups defined",
+            "Dual environment (Local + Colab) specified",
+            "2-hour local time limit documented",
+            "Multi-agent QA process documented",
+            "Local vs Colab comparison requirements defined",
+            "GitHub repo URL included"
+          ]
+        },
+        {
+          "id": "1.2",
+          "name": "Create tasks.json",
+          "priority": "critical",
+          "estimated_hours": 1,
+          "status": "done",
+          "dependencies": ["1.1"],
+          "files_to_create": ["docs/tasks.json"],
+          "acceptance_criteria": [
+            "All phases covered",
+            "All files mapped to tasks",
+            "Dependencies correctly linked",
+            "Time estimates realistic"
+          ]
+        },
+        {
+          "id": "1.3",
+          "name": "Get student approval on PRD and tasks.json",
+          "priority": "critical",
+          "estimated_hours": 0,
+          "status": "done",
+          "dependencies": ["1.1", "1.2"],
+          "files_to_create": [],
+          "acceptance_criteria": [
+            "Student explicitly approves both documents"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "2_infrastructure",
+      "phase_name": "Project Infrastructure Setup",
+      "estimated_hours": 2,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "2.1",
+          "name": "Create full directory structure",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["1.3"],
+          "files_to_create": [
+            "README.md",
+            "main.py",
+            "requirements.txt",
+            ".gitignore",
+            "venv/.gitkeep",
+            "src/__init__.py",
+            "src/config.py",
+            "src/data/__init__.py",
+            "src/models/__init__.py",
+            "src/training/__init__.py",
+            "src/visualization/__init__.py",
+            "src/utils/__init__.py",
+            "docs/PRD.md",
+            "docs/tasks.json",
+            "results/graphs/.gitkeep",
+            "results/tables/.gitkeep",
+            "results/models/.gitkeep",
+            "results/examples/.gitkeep",
+            "logs/config/log_config.json",
+            "logs/.gitkeep",
+            "notebooks/.gitkeep",
+            "config/settings.yaml"
+          ],
+          "acceptance_criteria": [
+            "Every folder has __init__.py (Python packages)",
+            "venv/.gitkeep contains UV setup instructions",
+            ".gitignore covers secrets, cache, venv, large files, .pth models",
+            "Directory matches PRD Section 18 exactly"
+          ]
+        },
+        {
+          "id": "2.2",
+          "name": "Setup UV virtual environment and requirements.txt",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["2.1"],
+          "files_to_create": ["requirements.txt"],
+          "acceptance_criteria": [
+            "requirements.txt has exact versions for: torch, torchvision, numpy, matplotlib, seaborn, scikit-learn, Pillow, tqdm, pandas, python-dotenv, pyyaml",
+            "UV venv creates successfully",
+            "All packages install without errors",
+            "Python 3.10+ verified"
+          ]
+        },
+        {
+          "id": "2.3",
+          "name": "Create configuration module",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["2.1"],
+          "files_to_create": ["src/config.py", "config/settings.yaml"],
+          "description": "Central configuration with all hyperparameters, paths, constants, and named magic numbers",
+          "file_specs": {
+            "src/config.py": {
+              "max_lines": 120,
+              "contents": [
+                "IMAGE_SIZE = 150 constant",
+                "NUM_CLASSES = 2",
+                "CLASS_NAMES = ['cat', 'dog']",
+                "BATCH_SIZE = 32",
+                "DEFAULT_EPOCHS = 15 (Colab), 10 (Local)",
+                "LEARNING_RATE = 0.001",
+                "RANDOM_SEED = 42",
+                "MAX_LOCAL_TRAINING_SECONDS = 7200 (2 hours)",
+                "EARLY_STOPPING_PATIENCE = 5",
+                "Device auto-detection (GPU/CPU)",
+                "Environment auto-detection (Colab/Local)",
+                "Path configuration using pathlib",
+                "Color scheme constants for consistent graphs",
+                "Model names and descriptions registry"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "No magic numbers anywhere in the codebase — all in config",
+            "Paths use pathlib.Path (relative, never absolute)",
+            "Auto-detects Colab vs Local environment",
+            "Auto-detects GPU vs CPU"
+          ]
+        },
+        {
+          "id": "2.4",
+          "name": "Create utility modules",
+          "priority": "high",
+          "estimated_hours": 0.5,
+          "dependencies": ["2.1"],
+          "files_to_create": [
+            "src/utils/paths.py",
+            "src/utils/helpers.py",
+            "src/utils/logger.py"
+          ],
+          "file_specs": {
+            "src/utils/paths.py": {
+              "max_lines": 60,
+              "contents": [
+                "get_project_root()",
+                "get_data_dir()",
+                "get_results_dir()",
+                "get_graphs_dir()",
+                "get_models_dir()",
+                "get_logs_dir()"
+              ]
+            },
+            "src/utils/helpers.py": {
+              "max_lines": 80,
+              "contents": [
+                "set_all_seeds(seed) — torch, numpy, random",
+                "get_device() — auto GPU/CPU",
+                "format_time(seconds) — human-readable",
+                "count_parameters(model) — total and trainable",
+                "print_model_summary(model, input_size)"
+              ]
+            },
+            "src/utils/logger.py": {
+              "max_lines": 130,
+              "contents": [
+                "RingBufferHandler class",
+                "setup_logger(name, config_path)",
+                "print_log_status(logger)"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "All paths are relative using pathlib",
+            "set_all_seeds sets torch, numpy, random seeds for reproducibility",
+            "Ring buffer logger limits log files per config",
+            "Each file under 150 lines"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "3_dataset",
+      "phase_name": "Dataset Pipeline",
+      "estimated_hours": 3,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "3.1",
+          "name": "Implement dataset download and loading",
+          "priority": "critical",
+          "estimated_hours": 1,
+          "dependencies": ["2.3", "2.4"],
+          "files_to_create": ["src/data/dataset.py"],
+          "file_specs": {
+            "src/data/dataset.py": {
+              "max_lines": 120,
+              "contents": [
+                "download_dataset() — downloads cats_and_dogs_filtered via tf.keras.utils.get_file() OR direct URL",
+                "CatsDogsDataset(torch.utils.data.Dataset) — custom PyTorch dataset class",
+                "__init__: loads file paths and labels from directory structure",
+                "__len__: returns dataset size",
+                "__getitem__: loads image, applies transforms, returns (image_tensor, label)",
+                "Handles both Colab and Local paths",
+                "Filters out corrupted images with try/except",
+                "Labels: cat=0, dog=1"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Dataset downloads successfully in both Colab and Local",
+            "CatsDogsDataset returns correct (tensor, label) pairs",
+            "Handles corrupted images gracefully (skip with warning)",
+            "Works with both grayscale and RGB transforms"
+          ]
+        },
+        {
+          "id": "3.2",
+          "name": "Implement image transforms and augmentation",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["3.1"],
+          "files_to_create": ["src/data/transforms.py"],
+          "file_specs": {
+            "src/data/transforms.py": {
+              "max_lines": 80,
+              "contents": [
+                "get_train_transforms(mode='rgb') — training transforms with augmentation",
+                "get_val_transforms(mode='rgb') — validation transforms (no augmentation!)",
+                "mode='rgb': Resize(150,150) → ToTensor → Normalize",
+                "mode='grayscale': Resize(150,150) → Grayscale → ToTensor → Normalize",
+                "Training augmentation: RandomHorizontalFlip, RandomRotation(15), ColorJitter",
+                "Augmentation applied ONLY to training, never validation"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "RGB output shape: (3, 150, 150)",
+            "Grayscale output shape: (1, 150, 150)",
+            "Pixel values normalized to 0.0–1.0",
+            "Augmentation only on training data"
+          ]
+        },
+        {
+          "id": "3.3",
+          "name": "Implement DataLoader creation",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["3.1", "3.2"],
+          "files_to_create": ["src/data/loader.py"],
+          "file_specs": {
+            "src/data/loader.py": {
+              "max_lines": 60,
+              "contents": [
+                "create_dataloaders(mode='rgb', batch_size=32) — returns train_loader, val_loader",
+                "Configurable batch_size and num_workers",
+                "num_workers=2 for Local, 2 for Colab (auto-adjusted)",
+                "shuffle=True for training, False for validation",
+                "pin_memory=True when GPU available",
+                "Print dataset statistics after creation"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Train loader: ~63 batches (2000 images / 32 batch)",
+            "Val loader: ~32 batches (1000 images / 32 batch)",
+            "Shuffling only on training set",
+            "Returns both loaders ready for training"
+          ]
+        },
+        {
+          "id": "3.4",
+          "name": "Create dataset sample visualization",
+          "priority": "high",
+          "estimated_hours": 1,
+          "dependencies": ["3.3"],
+          "files_to_create": ["src/visualization/sample_plots.py"],
+          "file_specs": {
+            "src/visualization/sample_plots.py": {
+              "max_lines": 120,
+              "contents": [
+                "plot_sample_images(dataloader, num_images=16) — grid of sample cats and dogs",
+                "plot_class_distribution(dataset) — bar chart showing cat/dog counts",
+                "plot_image_with_prediction(image, true_label, predicted_label) — single image with labels",
+                "plot_predictions_grid(images, true_labels, pred_labels, num_images=12) — grid with correct/incorrect coloring",
+                "All functions save to results/graphs/ AND display inline (for Colab)"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Sample grid shows 8 cats + 8 dogs with labels",
+            "Class distribution shows balanced 50/50 split",
+            "Predictions grid highlights correct (green) and incorrect (red)",
+            "Saved as PNG at 300 DPI"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "4_models",
+      "phase_name": "10 CNN Architecture Implementation",
+      "estimated_hours": 8,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "4.1",
+          "name": "Model 1 — Baseline CNN (Keras→PyTorch conversion)",
+          "priority": "critical",
+          "estimated_hours": 1,
+          "dependencies": ["3.3"],
+          "files_to_create": ["src/models/model_01_baseline.py"],
+          "file_specs": {
+            "src/models/model_01_baseline.py": {
+              "max_lines": 80,
+              "contents": [
+                "class BaselineCNN(nn.Module)",
+                "Conv2d(3→32,3x3) + ReLU + MaxPool(2x2)",
+                "Conv2d(32→64,3x3) + ReLU + MaxPool(2x2)",
+                "Conv2d(64→128,3x3) + ReLU + MaxPool(2x2)",
+                "Conv2d(128→128,3x3) + ReLU + MaxPool(2x2)",
+                "Flatten → Linear(6272→512) + ReLU → Linear(512→2)",
+                "Exact conversion of instructor's Keras example",
+                "Docstring explaining layer-by-layer what happens to the image",
+                "~3.45M parameters"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Architecture exactly matches Keras example from PRD",
+            "Input: (batch, 3, 150, 150), Output: (batch, 2)",
+            "Parameter count ~3.45M",
+            "Forward pass works without errors"
+          ]
+        },
+        {
+          "id": "4.2",
+          "name": "Model 2 — Shallow CNN (2 Conv layers)",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_02_shallow.py"],
+          "file_specs": {
+            "src/models/model_02_shallow.py": {
+              "max_lines": 60,
+              "contents": [
+                "class ShallowCNN(nn.Module)",
+                "Only 2 conv layers: 32 and 64 filters",
+                "Tests minimum viable architecture",
+                "~500K parameters"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Only 2 conv layers",
+            "Parameter count ~500K",
+            "Works with both RGB and Grayscale input"
+          ]
+        },
+        {
+          "id": "4.3",
+          "name": "Model 3 — Deep CNN (6 Conv layers)",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_03_deep.py"],
+          "file_specs": {
+            "src/models/model_03_deep.py": {
+              "max_lines": 80,
+              "contents": [
+                "class DeepCNN(nn.Module)",
+                "6 conv layers: 32→64→128→128→256→256",
+                "Tests depth impact on learning",
+                "~4-5M parameters"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "6 conv layers properly stacked",
+            "Spatial dimensions don't go negative (pooling placement correct)",
+            "Parameter count ~4-5M"
+          ]
+        },
+        {
+          "id": "4.4",
+          "name": "Model 4 — Wide CNN",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_04_wide.py"],
+          "file_specs": {
+            "src/models/model_04_wide.py": {
+              "max_lines": 60,
+              "contents": [
+                "class WideCNN(nn.Module)",
+                "3 conv layers with wider filters: 64→128→256",
+                "Tests width vs depth tradeoff",
+                "~5-6M parameters"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Fewer layers but more filters per layer than baseline",
+            "Parameter count ~5-6M"
+          ]
+        },
+        {
+          "id": "4.5",
+          "name": "Model 5 — Small FC Variant",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_05_small_fc.py"],
+          "file_specs": {
+            "src/models/model_05_small_fc.py": {
+              "max_lines": 60,
+              "contents": [
+                "class SmallFCCNN(nn.Module)",
+                "3 conv layers (32→64→128) + small FC head (128 neurons)",
+                "Tests compact classifier head",
+                "~1-2M parameters"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "FC layer has only 128 neurons (much smaller than baseline's 512)",
+            "Parameter count ~1-2M"
+          ]
+        },
+        {
+          "id": "4.6",
+          "name": "Model 6 — CNN + Dropout",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_06_dropout.py"],
+          "file_specs": {
+            "src/models/model_06_dropout.py": {
+              "max_lines": 80,
+              "contents": [
+                "class DropoutCNN(nn.Module)",
+                "Same conv structure as baseline",
+                "Dropout(0.5) after Flatten, Dropout(0.3) after FC1",
+                "Tests regularization via dropout",
+                "~3.45M parameters (same as baseline)"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Dropout layers present at correct positions",
+            "Dropout disabled during eval mode (model.eval())",
+            "Parameter count same as baseline"
+          ]
+        },
+        {
+          "id": "4.7",
+          "name": "Model 7 — CNN + BatchNorm",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_07_batchnorm.py"],
+          "file_specs": {
+            "src/models/model_07_batchnorm.py": {
+              "max_lines": 80,
+              "contents": [
+                "class BatchNormCNN(nn.Module)",
+                "BatchNorm2d after every Conv2d, before ReLU",
+                "Tests training stability and speed improvement",
+                "~3.46M parameters (slightly more due to BN params)"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "BatchNorm2d after every conv layer",
+            "Order: Conv → BatchNorm → ReLU → MaxPool",
+            "BatchNorm disabled during eval mode"
+          ]
+        },
+        {
+          "id": "4.8",
+          "name": "Model 8 — LeNet-Style CNN",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_08_lenet.py"],
+          "file_specs": {
+            "src/models/model_08_lenet.py": {
+              "max_lines": 70,
+              "contents": [
+                "class LeNetCNN(nn.Module)",
+                "2 conv layers with 5×5 kernels (not 3×3)",
+                "Average Pooling (not Max Pooling)",
+                "3 FC layers: 120 → 84 → 2 (classic LeNet sizes)",
+                "~200K parameters"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Uses 5×5 kernels instead of 3×3",
+            "Uses AvgPool2d instead of MaxPool2d",
+            "FC layer sizes match LeNet-5 tradition (120, 84)",
+            "Parameter count ~200K"
+          ]
+        },
+        {
+          "id": "4.9",
+          "name": "Model 9 — Transfer Learning (ResNet18)",
+          "priority": "critical",
+          "estimated_hours": 1.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_09_transfer.py"],
+          "file_specs": {
+            "src/models/model_09_transfer.py": {
+              "max_lines": 100,
+              "contents": [
+                "class TransferResNet18(nn.Module)",
+                "Load pretrained ResNet18 from torchvision",
+                "Freeze ALL conv layers (requires_grad = False)",
+                "Replace final FC: Linear(512→256) + ReLU + Dropout(0.3) + Linear(256→2)",
+                "Only custom head is trainable (~130K trainable params)",
+                "Input MUST be RGB (3 channels) — document this clearly",
+                "Handle input size: ResNet expects 224x224 but we use 150x150 — add adaptive pooling or resize"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Pretrained weights loaded correctly",
+            "Conv layers frozen (not updated during training)",
+            "Only custom head trains",
+            "Works with 150×150 input (may need adaptive pooling)",
+            "Trainable params ~130K, total ~11M"
+          ]
+        },
+        {
+          "id": "4.10",
+          "name": "Model 10 — Lightweight Efficient Model",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1"],
+          "files_to_create": ["src/models/model_10_lightweight.py"],
+          "file_specs": {
+            "src/models/model_10_lightweight.py": {
+              "max_lines": 70,
+              "contents": [
+                "class LightweightCNN(nn.Module)",
+                "3 conv layers: 16→32→64 with BatchNorm",
+                "Global Average Pooling: AdaptiveAvgPool2d(1)",
+                "Tiny classifier: Linear(64→2) only",
+                "~25-30K parameters total"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Uses Global Average Pooling (eliminates large FC layers)",
+            "Total parameters ~25-30K (100x fewer than baseline!)",
+            "Still achieves reasonable accuracy",
+            "Fastest model to train"
+          ]
+        },
+        {
+          "id": "4.11",
+          "name": "Create model registry in __init__.py",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["4.1", "4.2", "4.3", "4.4", "4.5", "4.6", "4.7", "4.8", "4.9", "4.10"],
+          "files_to_create": ["src/models/__init__.py"],
+          "file_specs": {
+            "src/models/__init__.py": {
+              "max_lines": 80,
+              "contents": [
+                "MODEL_REGISTRY dict mapping model_id → (class, name, description, group)",
+                "get_model(model_id, input_channels=3) → instantiated model",
+                "get_all_models() → list of all 10 models",
+                "get_model_info(model_id) → dict with name, description, group",
+                "Imports all 10 model classes"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "All 10 models accessible via get_model(1) through get_model(10)",
+            "Models support both input_channels=1 (grayscale) and input_channels=3 (RGB)",
+            "Model 9 (Transfer) enforces RGB only"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "5_training",
+      "phase_name": "Training & Evaluation Infrastructure",
+      "estimated_hours": 5,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "5.1",
+          "name": "Implement training loop with time limit",
+          "priority": "critical",
+          "estimated_hours": 2.5,
+          "dependencies": ["4.11", "3.3"],
+          "files_to_create": ["src/training/trainer.py"],
+          "file_specs": {
+            "src/training/trainer.py": {
+              "max_lines": 150,
+              "contents": [
+                "class Trainer:",
+                "  __init__(model, train_loader, val_loader, device, config)",
+                "  train_one_epoch() — single epoch training with batch progress",
+                "  validate() — validation pass (no gradients)",
+                "  fit(num_epochs) — full training loop with:",
+                "    - Per-epoch train/val accuracy and loss tracking",
+                "    - tqdm progress bars",
+                "    - Early stopping (patience from config)",
+                "    - ⚠️ 2-HOUR TIME LIMIT for local environment",
+                "    - Estimated time remaining display",
+                "    - Best model checkpoint saving",
+                "    - History dict returned: {train_acc, val_acc, train_loss, val_loss} per epoch",
+                "  save_model(path) — save state_dict",
+                "  load_model(path) — load state_dict",
+                "Loss function: nn.CrossEntropyLoss()",
+                "Optimizer: Adam with configurable lr",
+                "Scheduler: optional ReduceLROnPlateau"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Training loop works on both GPU and CPU",
+            "Time limit enforced: stops training if estimated total > 2 hours (local only)",
+            "Early stopping works: stops if val_loss doesn't improve for patience epochs",
+            "History dict contains all metrics per epoch",
+            "Progress bars show epoch, batch, loss, accuracy, time",
+            "Best model saved automatically based on best val_accuracy"
+          ]
+        },
+        {
+          "id": "5.2",
+          "name": "Implement evaluation and metrics",
+          "priority": "critical",
+          "estimated_hours": 1.5,
+          "dependencies": ["5.1"],
+          "files_to_create": ["src/training/evaluator.py"],
+          "file_specs": {
+            "src/training/evaluator.py": {
+              "max_lines": 120,
+              "contents": [
+                "class Evaluator:",
+                "  evaluate_model(model, dataloader, device) → metrics dict",
+                "  get_predictions(model, dataloader, device) → (all_preds, all_labels, all_probs)",
+                "  compute_confusion_matrix(y_true, y_pred) → confusion matrix",
+                "  compute_classification_report(y_true, y_pred) → precision, recall, f1",
+                "  get_misclassified_samples(model, dataloader, device, num=6) → wrong predictions with images",
+                "Uses sklearn.metrics for confusion_matrix and classification_report",
+                "Returns comprehensive metrics dict with accuracy, precision, recall, f1, confusion_matrix"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Confusion matrix correct for binary classification (2×2)",
+            "Precision, recall, F1 computed per class (cat, dog)",
+            "Misclassified samples returned with images for visualization",
+            "All computations use NumPy vectorization"
+          ]
+        },
+        {
+          "id": "5.3",
+          "name": "Implement main.py entry point for local execution",
+          "priority": "critical",
+          "estimated_hours": 1,
+          "dependencies": ["5.1", "5.2"],
+          "files_to_create": ["main.py"],
+          "file_specs": {
+            "main.py": {
+              "max_lines": 100,
+              "contents": [
+                "argparse: --model (1-10 or 'all'), --mode (rgb/grayscale), --epochs (int)",
+                "Orchestrates full pipeline:",
+                "  1. Setup (config, seeds, device, logging)",
+                "  2. Load dataset and create dataloaders",
+                "  3. For each selected model:",
+                "     a. Create model instance",
+                "     b. Print model summary (params, architecture)",
+                "     c. Train with time limit",
+                "     d. Evaluate on validation set",
+                "     e. Save results and model",
+                "     f. Generate per-model visualizations",
+                "  4. Generate comparison visualizations (if all models run)",
+                "  5. Print final summary table",
+                "  6. Print log status"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "python main.py runs all 10 models with defaults",
+            "python main.py --model 1 runs only model 1",
+            "python main.py --mode grayscale switches preprocessing",
+            "Graceful error handling if one model fails (continue to next)",
+            "Total results saved to results/ directory"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "6_visualization",
+      "phase_name": "Visualization & Graphs",
+      "estimated_hours": 4,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "6.1",
+          "name": "Training history plots (per model)",
+          "priority": "high",
+          "estimated_hours": 1,
+          "dependencies": ["5.1"],
+          "files_to_create": ["src/visualization/training_plots.py"],
+          "file_specs": {
+            "src/visualization/training_plots.py": {
+              "max_lines": 130,
+              "contents": [
+                "plot_accuracy_curves(history, model_name) — train + val accuracy vs epoch",
+                "plot_loss_curves(history, model_name) — train + val loss vs epoch",
+                "plot_training_summary(history, model_name) — 2×1 subplot (accuracy + loss)",
+                "All plots: title, labels, legend, grid, annotations (best epoch marked)",
+                "Save to results/graphs/ as PNG 300 DPI",
+                "Return figure for inline Colab display"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "Accuracy plot shows train AND validation on same axes",
+            "Loss plot shows train AND validation on same axes",
+            "Best epoch annotated with marker and text",
+            "Overfitting visible when train >> val (gap highlighted)"
+          ]
+        },
+        {
+          "id": "6.2",
+          "name": "Confusion matrix plots",
+          "priority": "high",
+          "estimated_hours": 0.5,
+          "dependencies": ["5.2"],
+          "files_to_create": ["src/visualization/confusion_plots.py"],
+          "file_specs": {
+            "src/visualization/confusion_plots.py": {
+              "max_lines": 80,
+              "contents": [
+                "plot_confusion_matrix(cm, model_name, class_names) — seaborn heatmap",
+                "Annotations: count AND percentage in each cell",
+                "Color: blues colormap",
+                "Labels: 'Cat' and 'Dog' (not 0 and 1)",
+                "Title: 'Confusion Matrix — Model Name'",
+                "Save to results/graphs/"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "2×2 matrix with cat/dog labels",
+            "Shows both counts and percentages",
+            "Clear color distinction between high and low values"
+          ]
+        },
+        {
+          "id": "6.3",
+          "name": "Cross-model comparison charts",
+          "priority": "high",
+          "estimated_hours": 1.5,
+          "dependencies": ["5.2"],
+          "files_to_create": ["src/visualization/comparison_plots.py"],
+          "file_specs": {
+            "src/visualization/comparison_plots.py": {
+              "max_lines": 150,
+              "contents": [
+                "plot_accuracy_comparison(all_results) — bar chart all 10 models accuracy",
+                "plot_loss_comparison(all_results) — bar chart all 10 models final loss",
+                "plot_params_comparison(all_results) — bar chart parameter counts",
+                "plot_time_comparison(all_results) — bar chart training times",
+                "plot_accuracy_vs_params(all_results) — scatter plot",
+                "plot_group_comparison(all_results) — grouped bar chart by research group",
+                "plot_local_vs_colab_accuracy(local_results, colab_results) — side-by-side comparison",
+                "plot_local_vs_colab_time(local_results, colab_results) — time comparison",
+                "Consistent color scheme across all charts",
+                "Bars sorted by accuracy (best to worst)",
+                "Annotations with exact values on each bar"
+              ]
+            }
+          },
+          "acceptance_criteria": [
+            "All 10 models compared in each chart",
+            "Bars annotated with exact numerical values",
+            "Color-coded by research group (A=blue, B=green, C=orange, D=red)",
+            "Local vs Colab charts show side-by-side for same models",
+            "Scatter plot shows that bigger isn't always better"
+          ]
+        },
+        {
+          "id": "6.4",
+          "name": "Update sample_plots.py with predictions grid",
+          "priority": "high",
+          "estimated_hours": 1,
+          "dependencies": ["5.2", "3.4"],
+          "files_to_create": [],
+          "files_to_modify": ["src/visualization/sample_plots.py"],
+          "description": "Add prediction visualization functions to the existing sample_plots.py from task 3.4",
+          "acceptance_criteria": [
+            "Shows 12 sample predictions per model",
+            "Correct predictions: green border/title",
+            "Incorrect predictions: red border/title",
+            "Each image shows: true label, predicted label, confidence %"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "7_colab_notebook",
+      "phase_name": "Google Colab Notebook",
+      "estimated_hours": 6,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "7.1",
+          "name": "Create Colab notebook — Sections 1-4 (Setup, Data, Models, Training infra)",
+          "priority": "critical",
+          "estimated_hours": 2,
+          "dependencies": ["5.3", "6.3"],
+          "files_to_create": ["notebooks/L39_Cats_vs_Dogs_PyTorch.ipynb"],
+          "description": "Convert all local source code into a self-contained Colab notebook. Sections 1-4 cover setup, data loading, model definitions, and training infrastructure.",
+          "acceptance_criteria": [
+            "Section 1: Installs, imports, GPU detection, seeds",
+            "Section 2: Dataset download, visualization of samples, DataLoaders",
+            "Section 3: All 10 model classes defined with summaries",
+            "Section 4: Trainer and Evaluator classes",
+            "Markdown cells explain each section for educational value",
+            "Every code cell has a markdown cell above explaining what it does"
+          ]
+        },
+        {
+          "id": "7.2",
+          "name": "Create Colab notebook — Section 5-6 (Training all models + Individual results)",
+          "priority": "critical",
+          "estimated_hours": 2,
+          "dependencies": ["7.1"],
+          "description": "Training loop for all 10 models with per-model result sections.",
+          "acceptance_criteria": [
+            "Each model trains with progress bars",
+            "Per-model output: accuracy/loss curves, confusion matrix, sample predictions",
+            "Results stored in a dict for later comparison",
+            "Clear print of metrics after each model completes"
+          ]
+        },
+        {
+          "id": "7.3",
+          "name": "Create Colab notebook — Section 7-8 (Comparison + Results Collection for README)",
+          "priority": "critical",
+          "estimated_hours": 2,
+          "dependencies": ["7.2"],
+          "description": "Cross-model comparison and the comprehensive Results Collection section designed for README integration. This is the MOST IMPORTANT section — it must be detailed enough to copy to Claude Code.",
+          "acceptance_criteria": [
+            "Section 7: All comparison charts (accuracy, loss, params, time, scatter)",
+            "Section 8: COMPREHENSIVE RESULTS COLLECTION including:",
+            "  - Dataset overview with sample images",
+            "  - Per-model results with all metrics and graphs",
+            "  - Comparison tables in markdown format",
+            "  - Group analysis (A, B, C, D)",
+            "  - Top-3 and Bottom-3 ranking with explanations",
+            "  - Key findings (depth vs width, regularization, transfer learning, size vs accuracy)",
+            "  - 12-year-old-friendly takeaways",
+            "  - All text, tables, and graph references ready for README copy-paste",
+            "Section 8 output is clearly marked: '📋 COPY EVERYTHING BELOW FOR README'"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "8_qa_colab",
+      "phase_name": "⚠️ QA — Colab Notebook Multi-Agent Review",
+      "estimated_hours": 4,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "8.1",
+          "name": "QA Agent 1: Full execution test (Restart Runtime and Run All)",
+          "priority": "critical",
+          "estimated_hours": 1,
+          "dependencies": ["7.3"],
+          "files_to_create": [],
+          "description": "Run the entire notebook from scratch with 'Restart runtime and run all'. Must complete without ANY errors.",
+          "acceptance_criteria": [
+            "Zero errors from first cell to last",
+            "All 10 models train successfully",
+            "All graphs render correctly",
+            "All results displayed",
+            "No DeprecationWarnings or FutureWarnings"
+          ]
+        },
+        {
+          "id": "8.2",
+          "name": "QA Agent 2: Code quality and correctness review",
+          "priority": "critical",
+          "estimated_hours": 1,
+          "dependencies": ["7.3"],
+          "description": "Review all code for correctness, efficiency, and adherence to standards.",
+          "acceptance_criteria": [
+            "No hardcoded values — all from config",
+            "Type hints present on all functions",
+            "Docstrings on all functions",
+            "NumPy vectorization (no Python loops for arrays)",
+            "Proper GPU/CPU device handling",
+            "Memory efficient (del unused tensors, torch.no_grad() in eval)",
+            "Random seeds set for reproducibility"
+          ]
+        },
+        {
+          "id": "8.3",
+          "name": "QA Agent 3: Educational content review",
+          "priority": "high",
+          "estimated_hours": 1,
+          "dependencies": ["7.3"],
+          "description": "Review all markdown cells for educational quality — 12-year-old test.",
+          "acceptance_criteria": [
+            "Every section has a clear educational intro",
+            "Technical terms explained with analogies",
+            "Architecture diagrams or tables present",
+            "Results explanations use simple language",
+            "Comparison section has meaningful insights, not just numbers"
+          ]
+        },
+        {
+          "id": "8.4",
+          "name": "QA Agent 4: Results accuracy and consistency review",
+          "priority": "high",
+          "estimated_hours": 1,
+          "dependencies": ["8.1"],
+          "description": "Verify all results numbers are consistent across sections.",
+          "acceptance_criteria": [
+            "Accuracy numbers in text match graph values",
+            "Parameter counts in summary match model definitions",
+            "Training times are realistic and consistent",
+            "Confusion matrix totals match dataset size",
+            "No placeholder text remaining"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "9_local_execution",
+      "phase_name": "Local Execution & Results Collection",
+      "estimated_hours": 5,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "9.1",
+          "name": "Run all 10 models locally with UV venv",
+          "priority": "critical",
+          "estimated_hours": 3,
+          "dependencies": ["5.3", "8.4"],
+          "description": "Execute python main.py to train all 10 models locally. Each model has 2-hour time limit. Record all results.",
+          "acceptance_criteria": [
+            "All 10 models run (some may hit time limit — that's OK)",
+            "Results saved to results/ directory",
+            "Training log records epochs completed, time, accuracy per model",
+            "Models that hit time limit clearly marked in results"
+          ]
+        },
+        {
+          "id": "9.2",
+          "name": "Generate Local vs Colab comparison data",
+          "priority": "high",
+          "estimated_hours": 1,
+          "dependencies": ["9.1"],
+          "description": "Combine local results with Colab results to create comparison tables and charts.",
+          "files_to_create": ["results/tables/local_vs_colab_comparison.csv"],
+          "acceptance_criteria": [
+            "CSV with columns: model_name, local_accuracy, colab_accuracy, local_time, colab_time, local_epochs, colab_epochs",
+            "Comparison graphs generated (accuracy side-by-side, time side-by-side)",
+            "Notes on which models hit local time limit"
+          ]
+        },
+        {
+          "id": "9.3",
+          "name": "Generate Local vs Colab comparison charts",
+          "priority": "high",
+          "estimated_hours": 1,
+          "dependencies": ["9.2"],
+          "description": "Create visual comparison charts for Local vs Colab results.",
+          "acceptance_criteria": [
+            "Side-by-side bar chart: accuracy per model (Local vs Colab)",
+            "Side-by-side bar chart: training time per model (Local vs Colab)",
+            "Table showing epoch counts (Local may have fewer due to time limit)",
+            "Saved to results/graphs/"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "10_readme",
+      "phase_name": "README.md — Educational Documentation",
+      "estimated_hours": 5,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "10.1",
+          "name": "Write README Sections 1-7 (Intro, Education, Setup)",
+          "priority": "critical",
+          "estimated_hours": 2,
+          "dependencies": ["9.3"],
+          "files_to_create": ["README.md"],
+          "description": "Title, Abstract, Applications, Features, Educational sections (What is CNN, How computer sees images, Layer explanations, Dropout, BatchNorm, Transfer Learning, PyTorch vs Keras), Environment setup, Installation instructions.",
+          "acceptance_criteria": [
+            "12-year-old readability on all educational sections",
+            "Analogies for every technical concept",
+            "Step-by-step installation for BOTH Local (UV) and Colab",
+            "Clear, tested commands"
+          ]
+        },
+        {
+          "id": "10.2",
+          "name": "Write README Sections 8-10 (Models, Results, Comparison)",
+          "priority": "critical",
+          "estimated_hours": 2,
+          "dependencies": ["10.1", "9.3"],
+          "description": "10 model descriptions, per-model results with graphs, cross-model comparison, Local vs Colab comparison, code files table.",
+          "acceptance_criteria": [
+            "All 10 models described with architecture tables",
+            "Every result graph embedded as image",
+            "Cross-model comparison table with all 10 models",
+            "Local vs Colab comparison table",
+            "Key findings section",
+            "Code files summary table with line counts",
+            "All images load correctly from results/graphs/"
+          ]
+        },
+        {
+          "id": "10.3",
+          "name": "Write README Sections 11-end (Learnings, Troubleshooting, Git)",
+          "priority": "high",
+          "estimated_hours": 1,
+          "dependencies": ["10.2"],
+          "description": "What I learned, Troubleshooting, Author, License, GitHub setup instructions.",
+          "acceptance_criteria": [
+            "Troubleshooting covers common issues (module not found, GPU not available, etc.)",
+            "Git setup instructions complete",
+            "Author and license present",
+            "All sections from PRD Section 10 are covered"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "11_qa_readme",
+      "phase_name": "⚠️ QA — README Multi-Agent Review",
+      "estimated_hours": 3,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "11.1",
+          "name": "QA Agent 1: 12-Year-Old Readability Agent",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["10.3"],
+          "description": "Review entire README for language simplicity. Every technical term must have a simple explanation. No assumed knowledge. Short sentences.",
+          "acceptance_criteria": [
+            "A 12-year-old can understand CNN explanation",
+            "Every technical term has an analogy",
+            "No sentences longer than 25 words without a break",
+            "Concepts build simple → complex"
+          ]
+        },
+        {
+          "id": "11.2",
+          "name": "QA Agent 2: Technical Accuracy Agent",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["10.3"],
+          "description": "Verify all numbers, architecture details, and commands are correct.",
+          "acceptance_criteria": [
+            "All accuracy % match actual run results",
+            "Parameter counts match model code",
+            "Training times match actual runs",
+            "Installation commands tested and working"
+          ]
+        },
+        {
+          "id": "11.3",
+          "name": "QA Agent 3: Completeness Agent",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["10.3"],
+          "description": "Verify every required section from PRD Section 10 is present.",
+          "acceptance_criteria": [
+            "All 10 models documented",
+            "Local vs Colab comparison present",
+            "Code files table present",
+            "UV setup instructions present",
+            "Both environments' setup instructions present"
+          ]
+        },
+        {
+          "id": "11.4",
+          "name": "QA Agent 4: Professional Polish Agent",
+          "priority": "high",
+          "estimated_hours": 0.5,
+          "dependencies": ["10.3"],
+          "description": "Check formatting, image rendering, links, tables, spelling.",
+          "acceptance_criteria": [
+            "All images render on GitHub",
+            "All tables render properly",
+            "No broken links",
+            "Consistent formatting and emoji usage",
+            "No placeholder text"
+          ]
+        },
+        {
+          "id": "11.5",
+          "name": "QA Agent 5: Comparison & Analysis Agent",
+          "priority": "high",
+          "estimated_hours": 0.5,
+          "dependencies": ["10.3"],
+          "description": "Review all comparison sections for depth and meaningful analysis.",
+          "acceptance_criteria": [
+            "10-model comparison is fair and insightful",
+            "Local vs Colab comparison is comprehensive",
+            "Key findings are meaningful (not just restating numbers)",
+            "Winner analysis is well-reasoned"
+          ]
+        },
+        {
+          "id": "11.6",
+          "name": "Fix all issues found by QA agents and re-review",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["11.1", "11.2", "11.3", "11.4", "11.5"],
+          "description": "Address every issue found by the 5 QA agents. Re-run checks to confirm fixes.",
+          "acceptance_criteria": [
+            "All QA issues resolved",
+            "Re-review confirms no remaining problems"
+          ]
+        }
+      ]
+    },
+    {
+      "phase": "12_final_push",
+      "phase_name": "Final QA & Push to GitHub",
+      "estimated_hours": 2,
+      "status": "pending",
+      "tasks": [
+        {
+          "id": "12.1",
+          "name": "Pre-push checklist verification",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["11.6", "8.4"],
+          "description": "Run through the complete pre-push checklist from PRD Section 19.3.",
+          "acceptance_criteria": [
+            "All files in correct directories",
+            "No large files (>50MB) — .pth models in .gitignore if needed",
+            ".gitignore complete",
+            "venv/.gitkeep present",
+            "All __init__.py files present",
+            "No __pycache__ directories",
+            "requirements.txt has exact versions",
+            "PRD.md and tasks.json in docs/",
+            "Notebook runs without errors",
+            "Local code runs without errors",
+            "README passes all 5 QA checks"
+          ]
+        },
+        {
+          "id": "12.2",
+          "name": "Clear cache and fresh test",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["12.1"],
+          "description": "Clear all __pycache__, .pyc files. Test main.py --model 1 on fresh environment.",
+          "acceptance_criteria": [
+            "No __pycache__ directories remain",
+            "main.py --model 1 runs successfully after cache clear",
+            "All imports resolve correctly"
+          ]
+        },
+        {
+          "id": "12.3",
+          "name": "Git init, add, commit, push",
+          "priority": "critical",
+          "estimated_hours": 0.5,
+          "dependencies": ["12.2"],
+          "description": "Initialize git repo, add all files, commit, push to GitHub.",
+          "acceptance_criteria": [
+            "git init successful",
+            "git add . includes all required files",
+            "git commit with descriptive message",
+            "git push to https://github.com/hadarwayn/L39-Cats-and-Dogs-Classification-with-PyTorch-Deep-Learning-Architecture-Study.git",
+            "Verify on GitHub: README renders, images display, structure correct"
+          ]
+        },
+        {
+          "id": "12.4",
+          "name": "Post-push GitHub verification",
+          "priority": "high",
+          "estimated_hours": 0.5,
+          "dependencies": ["12.3"],
+          "description": "Open the GitHub repo in browser and verify everything looks correct.",
+          "acceptance_criteria": [
+            "README renders correctly on GitHub",
+            "All images display (not broken links)",
+            "All tables render properly",
+            "Directory structure visible",
+            "Notebook viewable on GitHub",
+            "No secrets or large binary files committed"
+          ]
+        }
+      ]
+    }
+  ],
+  "file_structure": {
+    "root": [
+      "README.md",
+      "main.py",
+      "requirements.txt",
+      ".gitignore"
+    ],
+    "venv": [
+      ".gitkeep"
+    ],
+    "notebooks": [
+      "L39_Cats_vs_Dogs_PyTorch.ipynb"
+    ],
+    "src": [
+      "__init__.py",
+      "config.py"
+    ],
+    "src/data": [
+      "__init__.py",
+      "dataset.py",
+      "transforms.py",
+      "loader.py"
+    ],
+    "src/models": [
+      "__init__.py",
+      "model_01_baseline.py",
+      "model_02_shallow.py",
+      "model_03_deep.py",
+      "model_04_wide.py",
+      "model_05_small_fc.py",
+      "model_06_dropout.py",
+      "model_07_batchnorm.py",
+      "model_08_lenet.py",
+      "model_09_transfer.py",
+      "model_10_lightweight.py"
+    ],
+    "src/training": [
+      "__init__.py",
+      "trainer.py",
+      "evaluator.py"
+    ],
+    "src/visualization": [
+      "__init__.py",
+      "training_plots.py",
+      "confusion_plots.py",
+      "comparison_plots.py",
+      "sample_plots.py"
+    ],
+    "src/utils": [
+      "__init__.py",
+      "paths.py",
+      "helpers.py",
+      "logger.py"
+    ],
+    "docs": [
+      "PRD.md",
+      "tasks.json"
+    ],
+    "results/graphs": [".gitkeep"],
+    "results/tables": [".gitkeep"],
+    "results/models": [".gitkeep"],
+    "results/examples": [".gitkeep"],
+    "logs/config": ["log_config.json"],
+    "config": ["settings.yaml"]
+  },
+  "dependency_graph_summary": {
+    "description": "Simplified dependency chain showing critical path",
+    "critical_path": [
+      "1.3 (approval) → 2.1 (structure) → 2.3 (config) → 3.1 (dataset) → 4.1 (baseline model) → 4.11 (registry) → 5.1 (trainer) → 5.3 (main.py) → 7.1 (colab start) → 7.3 (colab results) → 8.1 (QA colab) → 9.1 (local run) → 10.1 (README start) → 11.1 (QA readme) → 12.3 (push)"
+    ],
+    "parallel_work": [
+      "Models 4.2–4.10 can be done in parallel after 4.1 is complete",
+      "Visualization tasks 6.1–6.4 can be done in parallel",
+      "QA agents 8.1–8.4 and 11.1–11.5 run in parallel"
+    ]
+  },
+  "total_files": {
+    "python_files": 27,
+    "notebook_files": 1,
+    "documentation_files": 4,
+    "config_files": 3,
+    "total": 35
+  }
+}

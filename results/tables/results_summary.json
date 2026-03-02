@@ -1,0 +1,92 @@
+{
+  "Baseline CNN": {
+    "model_id": 1,
+    "accuracy": 0.692,
+    "total_params": 3453634,
+    "trainable_params": 3453634,
+    "total_time": 434.5,
+    "epochs_completed": 10,
+    "group": "A"
+  },
+  "Shallow CNN": {
+    "model_id": 2,
+    "accuracy": 0.749,
+    "total_params": 11234626,
+    "trainable_params": 11234626,
+    "total_time": 379.2,
+    "epochs_completed": 10,
+    "group": "A"
+  },
+  "Deep CNN": {
+    "model_id": 3,
+    "accuracy": 0.68,
+    "total_params": 30618818,
+    "trainable_params": 30618818,
+    "total_time": 1881.0,
+    "epochs_completed": 10,
+    "group": "A"
+  },
+  "Wide CNN": {
+    "model_id": 4,
+    "accuracy": 0.5,
+    "total_params": 38252162,
+    "trainable_params": 38252162,
+    "total_time": 968.1,
+    "epochs_completed": 10,
+    "group": "A"
+  },
+  "Small FC CNN": {
+    "model_id": 5,
+    "accuracy": 0.794,
+    "total_params": 4828610,
+    "trainable_params": 4828610,
+    "total_time": 478.7,
+    "epochs_completed": 10,
+    "group": "C"
+  },
+  "Dropout CNN": {
+    "model_id": 6,
+    "accuracy": 0.75,
+    "total_params": 3453634,
+    "trainable_params": 3453634,
+    "total_time": 428.7,
+    "epochs_completed": 10,
+    "group": "B"
+  },
+  "BatchNorm CNN": {
+    "model_id": 7,
+    "accuracy": 0.752,
+    "total_params": 3454338,
+    "trainable_params": 3454338,
+    "total_time": 453.1,
+    "epochs_completed": 10,
+    "group": "B"
+  },
+  "LeNet-Style CNN": {
+    "model_id": 8,
+    "accuracy": 0.81,
+    "total_params": 2232846,
+    "trainable_params": 2232846,
+    "total_time": 207.0,
+    "epochs_completed": 10,
+    "group": "C"
+  },
+  "Transfer ResNet18": {
+    "model_id": 9,
+    "accuracy": 0.946,
+    "total_params": 11308354,
+    "trainable_params": 131842,
+    "total_time": 488.0,
+    "epochs_completed": 10,
+    "group": "D"
+  },
+  "Lightweight CNN": {
+    "model_id": 10,
+    "accuracy": 0.706,
+    "total_params": 23938,
+    "trainable_params": 23938,
+    "total_time": 283.4,
+    "epochs_completed": 10,
+    "group": "D"
+  }
+}

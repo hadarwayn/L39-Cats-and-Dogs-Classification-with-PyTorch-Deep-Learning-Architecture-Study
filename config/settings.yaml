@@ -1,0 +1,30 @@
+# L39 - Cats vs Dogs Classification Settings
+# This file holds environment-specific configuration
+
+# Dataset
+dataset:
+  image_size: 150
+  num_classes: 2
+  class_names: ["cat", "dog"]
+
+# Training defaults
+training:
+  batch_size: 32
+  learning_rate: 0.001
+  random_seed: 42
+  early_stopping_patience: 5
+  local_epochs: 10
+  colab_epochs: 15
+  max_local_training_seconds: 7200  # 2 hours per model
+
+# Dataset sizes by environment
+data_sizes:
+  local_max_train: 2000
+  local_max_val: 1000
+  colab_max_train: 20000
+  colab_max_val: 5000
+
+# Visualization
+visualization:
+  dpi: 300
+  figure_size: [10, 6]
